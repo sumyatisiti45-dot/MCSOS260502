@@ -21,3 +21,7 @@ __pycache__/
 # Temporary files
 *.tmp
 *.swp
+iso_root/
+*.d
+third_party/limine/
+
