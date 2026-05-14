@@ -9,7 +9,7 @@ PHDRS {
 }
 
 SECTIONS {
-    . = 0xffffffff80000000;
+    . = 0x200000;
 
     __kernel_start = .;
 
