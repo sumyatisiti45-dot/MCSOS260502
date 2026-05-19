@@ -48,13 +48,14 @@ check-src:
 	@test -d kernel/core
 	@test -d kernel/lib
 	@test -d kernel/arch/x86_64/include
+
 build:
 	@echo "building kernel"
 	@mkdir -p build
 	@clang -ffreestanding -m64 -Ikernel/arch/x86_64/include -c kernel/core/kmain.c -o build/kmain.o
 	@clang -ffreestanding -m64 -Ikernel/arch/x86_64/include -c kernel/core/serial.c -o build/serial.o
 	@clang -ffreestanding -m64 -Ikernel/arch/x86_64/include -c kernel/lib/memory.c -o build/memory.o
-	@ld.lld -nostdlib -static -o build/kernel.elf \
+	@ld.lld -nostdlib -static -T linker.ld -o build/kernel.elf \
 		build/kmain.o \
 		build/serial.o \
 		build/memory.o
