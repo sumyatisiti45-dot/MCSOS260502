@@ -8,17 +8,11 @@
 - Commit hash:
 - Tanggal:
 
----
-
 ## Ringkasan Status
 
-Status yang diajukan:
-- siap uji QEMU tahap M2
-- belum siap uji QEMU tahap M2
+Status yang diajukan: siap uji QEMU tahap M2 / belum siap uji QEMU tahap M2.
 
 Alasan ringkas:
-
----
 
 ## Evidence Matrix
 
@@ -35,8 +29,6 @@ Alasan ringkas:
 | Serial log | `build/qemu-serial.log` | PASS/FAIL | |
 | Git commit | `build/meta/m2-commit.txt` | PASS/FAIL | |
 
----
-
 ## Invariants yang Diperiksa
 
 1. Kernel adalah ELF64 x86_64.
@@ -46,8 +38,6 @@ Alasan ringkas:
 5. Serial console tersedia sebelum subsistem kompleks.
 6. Kernel tidak kembali setelah `kmain`.
 7. Output QEMU disimpan sebagai log file.
-
----
 
 ## Failure Modes yang Diuji atau Dianalisis
 
@@ -62,14 +52,10 @@ Alasan ringkas:
 | Reboot loop | Ya/Tidak | | |
 | CRLF script | Ya/Tidak | | |
 
----
-
 ## Keputusan Readiness
 
 - [ ] Lulus M2: siap uji QEMU tahap M2.
 - [ ] Belum lulus M2: perlu perbaikan.
-
----
 
 ## Catatan Reviewer
 
