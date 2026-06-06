@@ -1,70 +1,106 @@
+.RECIPEPREFIX := >
 SHELL := /usr/bin/env bash
 
-.DEFAULT_GOAL := help
+BUILD_DIR := build
+KERNEL := $(BUILD_DIR)/kernel.elf
+PANIC_KERNEL := $(BUILD_DIR)/kernel.panic.elf
 
-.PHONY: help meta check proof qemu-probe repro test clean distclean
+MAP := $(BUILD_DIR)/kernel.map
+PANIC_MAP := $(BUILD_DIR)/kernel.panic.map
 
-help:
-	@echo "MCSOS M1 targets:"
-	@echo " make meta - collect host and toolchain metadata"
-	@echo " make check - verify required tools and repository path"
-	@echo " make proof - build freestanding x86_64 ELF proof"
-	@echo " make qemu-probe - verify QEMU machine and OVMF availability"
-	@echo " make repro - run reproducibility check for proof artifact"
-	@echo " make test - run all M1 checks"
-	@echo " make clean - remove generated proof output"
-	@echo " make distclean - remove all generated build output"
+DISASM := $(BUILD_DIR)/kernel.disasm.txt
+SYMS := $(BUILD_DIR)/kernel.syms.txt
 
-meta:
-	@./tools/scripts/collect_meta.sh
+CC := clang
+LD := ld.lld
+OBJDUMP := objdump
+READELF := readelf
+NM := nm
 
-check:
-	@./tools/scripts/check_toolchain.sh
+all: build inspect
 
-proof:
-	@./tools/scripts/proof_compile.sh
+build: $(KERNEL)
 
-qemu-probe:
-	@./tools/scripts/qemu_probe.sh
+COMMON_CFLAGS := \
+  --target=x86_64-unknown-none-elf \
+  -std=c17 \
+  -ffreestanding \
+  -fno-builtin \
+  -fno-stack-protector \
+  -fno-stack-check \
+  -fno-pic \
+  -fno-pie \
+  -fno-lto \
+  -m64 \
+  -march=x86-64 \
+  -mabi=sysv \
+  -mno-red-zone \
+  -mno-mmx \
+  -mno-sse \
+  -mno-sse2 \
+  -mcmodel=kernel \
+  -Wall \
+  -Wextra \
+  -Werror \
+  -Ikernel/arch/x86_64/include \
+  -Ikernel/include
 
-repro:
-	@./tools/scripts/repro_check.sh
+CFLAGS := $(COMMON_CFLAGS)
+PANIC_CFLAGS := $(COMMON_CFLAGS) -DMCSOS_M3_TRIGGER_PANIC=1
 
-test: meta check proof qemu-probe repro
-	@echo "OK: M1 test suite passed"
+LDFLAGS := \
+  -nostdlib \
+  -static \
+  -z max-page-size=0x1000 \
+  -T linker.ld
+
+SRC_C := $(shell find kernel -name '*.c' | LC_ALL=C sort)
+
+OBJ := $(patsubst %.c,$(BUILD_DIR)/normal/%.o,$(SRC_C))
+PANIC_OBJ := $(patsubst %.c,$(BUILD_DIR)/panic/%.o,$(SRC_C))
+
+.PHONY: all build panic inspect audit clean distclean
+
+panic: $(PANIC_KERNEL)
+
+$(BUILD_DIR)/normal/%.o: %.c
+>mkdir -p $(dir $@)
+>$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/panic/%.o: %.c
+>mkdir -p $(dir $@)
+>$(CC) $(PANIC_CFLAGS) -c $< -o $@
+
+$(KERNEL): $(OBJ) linker.ld
+>mkdir -p $(BUILD_DIR)
+>$(LD) $(LDFLAGS) -Map=$(MAP) -o $@ $(OBJ)
+
+$(PANIC_KERNEL): $(PANIC_OBJ) linker.ld
+>mkdir -p $(BUILD_DIR)
+>$(LD) $(LDFLAGS) -Map=$(PANIC_MAP) -o $@ $(PANIC_OBJ)
+
+inspect: $(KERNEL)
+>$(READELF) -h $(KERNEL) > $(BUILD_DIR)/kernel.readelf.header.txt
+>$(READELF) -l $(KERNEL) > $(BUILD_DIR)/kernel.readelf.programs.txt
+>$(NM) -n $(KERNEL) > $(SYMS)
+>$(OBJDUMP) -d -Mintel $(KERNEL) > $(DISASM)
+
+>grep -q 'ELF64' $(BUILD_DIR)/kernel.readelf.header.txt
+>grep -q 'Machine:[[:space:]]*Advanced Micro Devices X86-64' $(BUILD_DIR)/kernel.readelf.header.txt
+>grep -q 'kmain' $(SYMS)
+>grep -q 'kernel_panic_at' $(SYMS)
+>grep -q 'cpu_halt_forever' $(DISASM)
+
+audit: inspect panic
+>! $(NM) -u $(KERNEL) | grep .
+>! $(NM) -u $(PANIC_KERNEL) | grep .
+>grep -q 'kernel_panic_at' $(BUILD_DIR)/kernel.disasm.txt
+>$(READELF) -S $(KERNEL) | grep -q '.text'
+>$(READELF) -S $(KERNEL) | grep -q '.rodata'
 
 clean:
-	@rm -rf build/proof build/repro
-	@echo "OK: cleaned proof and reproducibility outputs"
+>rm -rf $(BUILD_DIR)
 
-distclean:
-	@rm -rf build
-	@echo "OK: removed build directory"
-check-scripts:
-	for s in tools/scripts/*.sh; do bash -n "$$s"; done
-check-src:
-	@echo "checking source tree"
-	@test -f linker.ld
-	@test -d kernel/core
-	@test -d kernel/lib
-	@test -d kernel/arch/x86_64/include
+distclean: clean
+>rm -rf iso_root limine
 
-build:
-	@echo "building kernel"
-	@mkdir -p build
-	@clang -ffreestanding -m64 -mno-red-zone -Ikernel/arch/x86_64/include -c kernel/core/kmain.c -o build/kmain.o
-	@clang -ffreestanding -m64 -mno-red-zone -Ikernel/arch/x86_64/include -c kernel/core/serial.c -o build/serial.o
-	@clang -ffreestanding -m64 -mno-red-zone -Ikernel/arch/x86_64/include -c kernel/lib/memory.c -o build/memory.o
-	@ld.lld -nostdlib -static -T linker.ld \
-	build/kmain.o \
-	build/serial.o \
-	build/memory.o \
-	-o build/kernel.elf
-	@cp build/kernel.elf build/kernel.map
-image:
-	@./tools/scripts/make_iso.sh
-run:
-	-@./tools/scripts/run_qemu.sh
-grade: build image
-	-@./tools/scripts/grade_m2.sh
-	@echo "GRADE OK"

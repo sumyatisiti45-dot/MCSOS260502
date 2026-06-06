@@ -2,30 +2,36 @@ OUTPUT_FORMAT(elf64-x86-64)
 
 ENTRY(kmain)
 
-PHDRS {
-    text PT_LOAD FLAGS(5);
+PHDRS
+{
+    text   PT_LOAD FLAGS(5);
     rodata PT_LOAD FLAGS(4);
-    data PT_LOAD FLAGS(6);
+    data   PT_LOAD FLAGS(6);
 }
 
-SECTIONS {
+SECTIONS
+{
     . = 0xffffffff80000000;
 
     __kernel_start = .;
 
-    .text : ALIGN(4096) {
+    .text : ALIGN(4096)
+    {
         *(.text .text.*)
     } :text
 
-    .rodata : ALIGN(4096) {
+    .rodata : ALIGN(4096)
+    {
         *(.rodata .rodata.*)
     } :rodata
 
-    .data : ALIGN(4096) {
+    .data : ALIGN(4096)
+    {
         *(.data .data.*)
     } :data
 
-    .bss : ALIGN(4096) {
+    .bss : ALIGN(4096)
+    {
         *(COMMON)
         *(.bss .bss.*)
     } :data
