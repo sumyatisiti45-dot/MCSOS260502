@@ -1,6 +1,8 @@
 #include <stdint.h>
 
 #include <mcsos/arch/idt.h>
+#include <mcsos/arch/pic.h>
+#include <mcsos/arch/pit.h>
 #include <mcsos/kernel/log.h>
 #include <mcsos/kernel/panic.h>
 
@@ -75,16 +77,28 @@ void x86_64_trap_dispatch(x86_64_trap_frame_t *frame)
 
     ++trap_count;
 
-    log_write("[M4] trap dispatch: ");
-    log_writeln(trap_name(frame->vector));
+    if (frame->vector >= 32u && frame->vector <= 47u)
+{
+    uint8_t irq = (uint8_t)(frame->vector - 32u);
 
-    log_trap_frame(frame);
-
-    if (frame->vector == 3u)
+    if (irq == 0u)
     {
-        log_writeln("[M4] breakpoint handled; returning with iretq");
-        return;
+        timer_on_irq0();
     }
 
-    KERNEL_PANIC("unrecoverable CPU exception", frame->vector);
+    pic_send_eoi(irq);
+    return;
+}
+
+if (frame->vector == 3u)
+{
+    log_writeln("[M4] breakpoint handled; returning with iretq");
+    return;
+}
+
+log_write("[M4] trap dispatch: ");
+log_writeln(trap_name(frame->vector));
+log_trap_frame(frame);
+
+KERNEL_PANIC("unrecoverable CPU exception", frame->vector);
 }

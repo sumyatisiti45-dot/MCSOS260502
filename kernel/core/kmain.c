@@ -2,6 +2,8 @@
 
 #include <mcsos/arch/cpu.h>
 #include <mcsos/arch/idt.h>
+#include <mcsos/arch/pic.h>
+#include <mcsos/arch/pit.h>
 
 #include <mcsos/kernel/log.h>
 #include <mcsos/kernel/panic.h>
@@ -42,9 +44,22 @@ void kmain(void) {
         "rflags_before_idt",
         cpu_read_rflags());
 
-    x86_64_idt_init();
+log_writeln("[MCSOS:M5] boot: external interrupt bring-up start");
 
-    m4_selftest();
+x86_64_idt_init();
+log_writeln("[MCSOS:M5] idt: loaded");
+
+pic_remap();
+pic_mask_all();
+log_writeln("[MCSOS:M5] pic: remapped; mask master=0xFF slave=0xFF");
+pic_unmask_irq(0);
+log_writeln("[MCSOS:M5] pit: configured 100Hz");
+pit_configure_hz(100);
+
+log_writeln("[MCSOS:M5] sti: enabling interrupts");
+__asm__ volatile("sti");
+
+m4_selftest();
 
 #ifdef MCSOS_M4_TRIGGER_BREAKPOINT
     log_writeln("[M4] triggering intentional breakpoint exception");
@@ -58,8 +73,11 @@ void kmain(void) {
         0x4D43534F533034u);
 #else
     log_writeln("[M4] IDT and exception dispatch path installed");
-    log_writeln("[M4] ready for QEMU smoke test and GDB audit");
+log_writeln("[M4] ready for QEMU smoke test and GDB audit");
 
-    cpu_halt_forever();
+for (;;)
+{
+    __asm__ volatile("hlt");
+}
 #endif
 }
