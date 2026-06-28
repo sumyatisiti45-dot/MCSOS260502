@@ -1,0 +1,17 @@
+Session GDB M5 - QEMU gdbstub
+==============================
+Command: gdb build/mcsos-m5.elf
+target remote :1234  -> connected at 0x000000000000fff0
+
+Breakpoints:
+  break kmain             -> 0xffffffff80001570
+  break x86_64_idt_init   -> 0xffffffff800010c0
+  break x86_64_trap_dispatch -> 0xffffffff80001d80
+
+Results:
+  continue -> Breakpoint 1 hit: kmain
+  continue -> Breakpoint 2 hit: x86_64_idt_init
+  continue -> Breakpoint 3 hit: x86_64_trap_dispatch (IRQ0)
+  rip    = 0xffffffff80001d80
+  rsp    = 0xffffffff80009f58
+  (Breakpoint 3 hit berulang = tick periodik IRQ0 confirmed)

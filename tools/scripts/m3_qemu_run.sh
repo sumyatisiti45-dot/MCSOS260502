@@ -47,7 +47,7 @@ cat "$LOG"
 grep -q 'MCSOS 260502 M3 kernel entered' "$LOG" \
     || fail "log boot M3 tidak ditemukan"
 
-grep -q '\[M3\] selftest: basic invariants passed' "$LOG" \
+grep -q '\[M4\] selftest: IDT invariants passed' "$LOG" \
     || fail "selftest M3 tidak lulus"
 
 echo "PASS: QEMU smoke test M3 selesai"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-KERNEL="build/kernel.elf"
+KERNEL="build/mcsos-m5.elf"
 ISO="build/mcsos.iso"
 ISO_ROOT="iso_root"
 LIMINE_DIR="third_party/limine"
@@ -17,7 +17,7 @@ fi
 
 mkdir -p "$ISO_ROOT/boot/limine" "$ISO_ROOT/EFI/BOOT" build
 
-cp -v "$KERNEL" "$ISO_ROOT/boot/kernel.elf"
+cp -v "$KERNEL" "$ISO_ROOT/boot/mcsos-m5.elf"
 cp -v configs/limine/limine.conf \
     "$ISO_ROOT/boot/limine/limine.conf"
 

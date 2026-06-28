@@ -1,0 +1,13 @@
+diff --git a/tools/scripts/make_iso.sh b/tools/scripts/make_iso.sh
+index e724dcc..270b8a0 100755
+--- a/tools/scripts/make_iso.sh
++++ b/tools/scripts/make_iso.sh
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+ set -euo pipefail
+ 
+-KERNEL="build/kernel.elf"
++KERNEL="build/mcsos-m5.elf"
+ ISO="build/mcsos.iso"
+ ISO_ROOT="iso_root"
+ LIMINE_DIR="third_party/limine"

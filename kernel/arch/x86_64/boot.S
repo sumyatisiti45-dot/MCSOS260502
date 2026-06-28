@@ -13,8 +13,10 @@ mb2_end:
 stack_top:
 .section .text
 .global _start
+.type _start, @function
 .code64
 _start:
-    lea stack_top(%rip),%rsp
+    lea stack_top(%rip), %rsp
     call kmain
-1:  hlt; jmp 1b
+1:  hlt
+    jmp 1b
