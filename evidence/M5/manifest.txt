@@ -1,0 +1,18 @@
+M5 Evidence Manifest
+====================
+Tanggal   : $(date)
+Branch    : praktikum/m5-timer-irq
+Commit    : $(git rev-parse HEAD)
+
+Files:
+- m5-build.log          : make clean && make grade output
+- m5-qemu-serial.log    : QEMU serial log dengan timer tick
+- kernel.elf            : kernel binary M5
+- kernel.map            : linker map
+- kernel.disasm.txt     : objdump disassembly
+- kernel.syms.txt       : nm symbol table
+- readelf-header.txt    : ELF header
+- readelf-sections.txt  : ELF sections
+- readelf-program-headers.txt : ELF program headers
+- undefined.txt         : nm -u (kosong = freestanding)
+- gdb-session.txt       : GDB debug session log
