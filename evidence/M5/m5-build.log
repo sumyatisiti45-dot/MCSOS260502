@@ -1,0 +1,93 @@
+rm -rf build
+mkdir -p build/normal/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/idt.c -o build/normal/kernel/arch/x86_64/idt.o
+mkdir -p build/normal/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/pic.c -o build/normal/kernel/arch/x86_64/pic.o
+mkdir -p build/normal/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/pit.c -o build/normal/kernel/arch/x86_64/pit.o
+mkdir -p build/normal/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/core/kmain.c -o build/normal/kernel/core/kmain.o
+mkdir -p build/normal/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/core/log.c -o build/normal/kernel/core/log.o
+mkdir -p build/normal/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/core/panic.c -o build/normal/kernel/core/panic.o
+mkdir -p build/normal/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/core/serial.c -o build/normal/kernel/core/serial.o
+mkdir -p build/normal/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/core/trap.c -o build/normal/kernel/core/trap.o
+mkdir -p build/normal/kernel/lib/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/lib/memory.c -o build/normal/kernel/lib/memory.o
+mkdir -p build/normal/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/boot.S -o build/normal/kernel/arch/x86_64/boot.o
+mkdir -p build/normal/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/isr.S -o build/normal/kernel/arch/x86_64/isr.o
+mkdir -p build
+ld.lld -nostdlib -static -z max-page-size=0x1000 -T linker.ld -Map=build/mcsos-m5.map -o build/mcsos-m5.elf build/normal/kernel/arch/x86_64/idt.o build/normal/kernel/arch/x86_64/pic.o build/normal/kernel/arch/x86_64/pit.o build/normal/kernel/core/kmain.o build/normal/kernel/core/log.o build/normal/kernel/core/panic.o build/normal/kernel/core/serial.o build/normal/kernel/core/trap.o build/normal/kernel/lib/memory.o build/normal/kernel/arch/x86_64/boot.o build/normal/kernel/arch/x86_64/isr.o
+readelf -h build/mcsos-m5.elf > build/readelf-header.txt
+readelf -l build/mcsos-m5.elf > build/readelf-program-headers.txt
+readelf -S build/mcsos-m5.elf > build/readelf-sections.txt
+nm -u build/mcsos-m5.elf > build/undefined.txt
+nm -n build/mcsos-m5.elf > build/symbols.txt
+objdump -d -Mintel build/mcsos-m5.elf > build/disassembly.txt
+grep -q 'ELF64' build/readelf-header.txt
+grep -q 'Machine:[[:space:]]*Advanced Micro Devices X86-64' build/readelf-header.txt
+grep -q 'kmain' build/symbols.txt
+grep -q 'x86_64_idt_init' build/symbols.txt
+grep -q 'x86_64_trap_dispatch' build/symbols.txt
+grep -q 'iretq' build/disassembly.txt
+grep -q 'lidt' build/disassembly.txt
+mkdir -p build/breakpoint/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/arch/x86_64/idt.c -o build/breakpoint/kernel/arch/x86_64/idt.o
+mkdir -p build/breakpoint/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/arch/x86_64/pic.c -o build/breakpoint/kernel/arch/x86_64/pic.o
+mkdir -p build/breakpoint/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/arch/x86_64/pit.c -o build/breakpoint/kernel/arch/x86_64/pit.o
+mkdir -p build/breakpoint/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/core/kmain.c -o build/breakpoint/kernel/core/kmain.o
+mkdir -p build/breakpoint/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/core/log.c -o build/breakpoint/kernel/core/log.o
+mkdir -p build/breakpoint/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/core/panic.c -o build/breakpoint/kernel/core/panic.o
+mkdir -p build/breakpoint/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/core/serial.c -o build/breakpoint/kernel/core/serial.o
+mkdir -p build/breakpoint/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/core/trap.c -o build/breakpoint/kernel/core/trap.o
+mkdir -p build/breakpoint/kernel/lib/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_BREAKPOINT=1 -c kernel/lib/memory.c -o build/breakpoint/kernel/lib/memory.o
+mkdir -p build/breakpoint/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/boot.S -o build/breakpoint/kernel/arch/x86_64/boot.o
+mkdir -p build/breakpoint/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/isr.S -o build/breakpoint/kernel/arch/x86_64/isr.o
+mkdir -p build
+ld.lld -nostdlib -static -z max-page-size=0x1000 -T linker.ld -Map=build/kernel.breakpoint.map -o build/kernel.breakpoint.elf build/breakpoint/kernel/arch/x86_64/idt.o build/breakpoint/kernel/arch/x86_64/pic.o build/breakpoint/kernel/arch/x86_64/pit.o build/breakpoint/kernel/core/kmain.o build/breakpoint/kernel/core/log.o build/breakpoint/kernel/core/panic.o build/breakpoint/kernel/core/serial.o build/breakpoint/kernel/core/trap.o build/breakpoint/kernel/lib/memory.o build/breakpoint/kernel/arch/x86_64/boot.o build/breakpoint/kernel/arch/x86_64/isr.o
+mkdir -p build/panic/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/arch/x86_64/idt.c -o build/panic/kernel/arch/x86_64/idt.o
+mkdir -p build/panic/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/arch/x86_64/pic.c -o build/panic/kernel/arch/x86_64/pic.o
+mkdir -p build/panic/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/arch/x86_64/pit.c -o build/panic/kernel/arch/x86_64/pit.o
+mkdir -p build/panic/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/core/kmain.c -o build/panic/kernel/core/kmain.o
+mkdir -p build/panic/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/core/log.c -o build/panic/kernel/core/log.o
+mkdir -p build/panic/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/core/panic.c -o build/panic/kernel/core/panic.o
+mkdir -p build/panic/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/core/serial.c -o build/panic/kernel/core/serial.o
+mkdir -p build/panic/kernel/core/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/core/trap.c -o build/panic/kernel/core/trap.o
+mkdir -p build/panic/kernel/lib/
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -DMCSOS_M4_TRIGGER_PANIC=1 -c kernel/lib/memory.c -o build/panic/kernel/lib/memory.o
+mkdir -p build/panic/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/boot.S -o build/panic/kernel/arch/x86_64/boot.o
+mkdir -p build/panic/kernel/arch/x86_64/
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -c kernel/arch/x86_64/isr.S -o build/panic/kernel/arch/x86_64/isr.o
+mkdir -p build
+ld.lld -nostdlib -static -z max-page-size=0x1000 -T linker.ld -Map=build/kernel.panic.map -o build/kernel.panic.elf build/panic/kernel/arch/x86_64/idt.o build/panic/kernel/arch/x86_64/pic.o build/panic/kernel/arch/x86_64/pit.o build/panic/kernel/core/kmain.o build/panic/kernel/core/log.o build/panic/kernel/core/panic.o build/panic/kernel/core/serial.o build/panic/kernel/core/trap.o build/panic/kernel/lib/memory.o build/panic/kernel/arch/x86_64/boot.o build/panic/kernel/arch/x86_64/isr.o
+! nm -u build/mcsos-m5.elf       | grep .
+! nm -u build/kernel.breakpoint.elf    | grep .
+! nm -u build/kernel.panic.elf | grep .
+grep -q 'isr_stub_14' build/symbols.txt
+grep -q 'x86_64_exception_stubs' build/symbols.txt
+readelf -S build/mcsos-m5.elf | grep -q '\.text'
+readelf -S build/mcsos-m5.elf | grep -q '\.rodata'

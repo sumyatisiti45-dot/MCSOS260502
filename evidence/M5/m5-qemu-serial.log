@@ -1,0 +1,29 @@
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00005 " from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x2,0xFFFF,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00005 " from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x2,0xFFFF,0x0)
+[01;01H[01;01H[01;01Hl[01;02Hi[01;03Hm[01;04Hi[01;05Hn[01;06He[01;07H:[01;08H [01;09HL[01;10Ho[01;11Ha[01;12Hd[01;13Hi[01;14Hn[01;15Hg[01;16H [01;17He[01;18Hx[01;19He[01;20Hc[01;21Hu[01;22Ht[01;23Ha[01;24Hb[01;25Hl[01;26He[01;27H [01;28H`[01;29Hb[01;30Ho[01;31Ho[01;32Ht[01;33H([01;34H)[01;35H:[01;36H/[01;37Hb[01;38Ho[01;39Ho[01;40Ht[01;41H/[01;42Hm[01;43Hc[01;44Hs[01;45Ho[01;46Hs[01;47H-[01;48Hm[01;49H5[01;50H.[01;51He[01;52Hl[01;53Hf[01;54H`[01;55H.[01;56H.[01;57H.[01;58H[01;01H[02;01HMCSOS 260502 M3 kernel entered
+kernel_start=0xffffffff80000000
+kernel_end=0xffffffff8001a030
+rflags_before_idt=0x0000000000000082
+[MCSOS:M5] boot: external interrupt bring-up start
+idt_base=0xffffffff80005000
+idt_limit=0x0000000000000fff
+[M4] IDT loaded
+[MCSOS:M5] idt: loaded
+[MCSOS:M5] pic: remapped; mask master=0xFF slave=0xFF
+[MCSOS:M5] pit: configured 100Hz
+[MCSOS:M5] sti: enabling interrupts
+[M4] selftest: IDT invariants passed
+[M4] IDT and exception dispatch path installed
+[M4] ready for QEMU smoke test and GDB audit
+[MCSOS:TIMER] ticks=0x0000000000000064
+[MCSOS:TIMER] ticks=0x00000000000000c8
+[MCSOS:TIMER] ticks=0x000000000000012c
+[MCSOS:TIMER] ticks=0x0000000000000190
+[MCSOS:TIMER] ticks=0x00000000000001f4
+[MCSOS:TIMER] ticks=0x0000000000000258
+[MCSOS:TIMER] ticks=0x00000000000002bc
+[MCSOS:TIMER] ticks=0x0000000000000320
+[MCSOS:TIMER] ticks=0x0000000000000384
+[MCSOS:TIMER] ticks=0x00000000000003e8
+[MCSOS:TIMER] ticks=0x000000000000044c
+[MCSOS:TIMER] ticks=0x00000000000004b0
