@@ -7,12 +7,14 @@
 #include <mcsos/kernel/panic.h>
 #include <mcsos/kernel/version.h>
 #include "pmm.h"
+#include "vmm.h"
 
 extern char __kernel_start[];
 extern char __kernel_end[];
 
 static struct pmm_state kernel_pmm;
 static uint8_t kernel_pmm_bitmap[PMM_BITMAP_BYTES] __attribute__((aligned(4096)));
+static struct vmm_space kernel_space;
 
 static void m6_pmm_init(void) {
     struct boot_mem_region regions[] = {
@@ -24,7 +26,6 @@ static void m6_pmm_init(void) {
           .type = BOOT_MEM_KERNEL_AND_MODULES },
         { .base = 0x00500000ULL, .length = 0x00400000ULL, .type = BOOT_MEM_USABLE },
     };
-
     bool ok = pmm_init_from_map(&kernel_pmm,
                                 regions,
                                 sizeof(regions) / sizeof(regions[0]),
@@ -34,21 +35,73 @@ static void m6_pmm_init(void) {
     if (!ok) {
         KERNEL_PANIC("pmm_init_from_map failed", 0x6D6D70ULL);
     }
-
     log_writeln("[m6] pmm initialized");
     log_key_value_hex64("frames_managed", pmm_frame_count(&kernel_pmm));
     log_key_value_hex64("frames_free", pmm_free_count(&kernel_pmm));
-
     uint64_t f = pmm_alloc_frame(&kernel_pmm);
     if (f == PMM_INVALID_FRAME) {
         KERNEL_PANIC("pmm_alloc_frame failed", 0x6D6D70ULL);
     }
     log_key_value_hex64("[m6] sample_frame", f);
-
     if (!pmm_free_frame(&kernel_pmm, f)) {
         KERNEL_PANIC("pmm_free_frame failed", 0x6D6D70ULL);
     }
     log_writeln("[m6] alloc/free OK");
+}
+
+static uint64_t vmm_alloc_wrap(void *ctx) {
+    (void)ctx;
+    return pmm_alloc_frame(&kernel_pmm);
+}
+
+static void vmm_free_wrap(void *ctx, uint64_t paddr) {
+    (void)ctx;
+    pmm_free_frame(&kernel_pmm, paddr);
+}
+
+static void *vmm_phys_to_virt_wrap(void *ctx, uint64_t paddr) {
+    (void)ctx;
+    return (void *)paddr;
+}
+
+static void m7_vmm_init(void) {
+    uint64_t root = pmm_alloc_frame(&kernel_pmm);
+    if (root == PMM_INVALID_FRAME) {
+        KERNEL_PANIC("M7: cannot allocate root page table", 0x766D6DULL);
+    }
+
+    int rc = vmm_space_init(&kernel_space, root, NULL,
+                            vmm_alloc_wrap, vmm_free_wrap,
+                            vmm_phys_to_virt_wrap);
+    if (rc != VMM_MAP_OK) {
+        KERNEL_PANIC("M7: vmm_space_init failed", 0x766D6DULL);
+    }
+
+    log_writeln("[m7] VMM core initialized");
+    log_key_value_hex64("[m7] root_paddr", root);
+
+    rc = vmm_map_page(&kernel_space,
+                      0xFFFF800000200000ULL,
+                      0x0000000000300000ULL,
+                      VMM_PTE_WRITABLE | VMM_PTE_NO_EXECUTE);
+    if (rc != VMM_MAP_OK) {
+        KERNEL_PANIC("M7: vmm_map_page failed", 0x766D6DULL);
+    }
+
+    struct vmm_mapping m;
+    rc = vmm_query_page(&kernel_space, 0xFFFF800000200000ULL, &m);
+    if (rc != VMM_MAP_OK) {
+        KERNEL_PANIC("M7: vmm_query_page failed", 0x766D6DULL);
+    }
+    log_key_value_hex64("[m7] mapped_paddr", m.paddr);
+
+    rc = vmm_unmap_page(&kernel_space, 0xFFFF800000200000ULL);
+    if (rc != VMM_MAP_OK) {
+        KERNEL_PANIC("M7: vmm_unmap_page failed", 0x766D6DULL);
+    }
+
+    log_writeln("[m7] map/query/unmap OK");
+    log_writeln("[m7] ready for QEMU smoke test");
 }
 
 static void m4_selftest(void) {
@@ -86,6 +139,7 @@ void kmain(void) {
 
     m4_selftest();
     m6_pmm_init();
+    m7_vmm_init();
 
 #ifdef MCSOS_M4_TRIGGER_BREAKPOINT
     log_writeln("[M4] triggering intentional breakpoint exception");
