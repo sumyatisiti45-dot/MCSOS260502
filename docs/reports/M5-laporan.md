@@ -2,8 +2,8 @@
 ## External Interrupt, Legacy PIC Remap, dan PIT Timer Tick pada MCSOS
 
 **Nama**          : Siti Sumyati
-**NIM**           : (isi NIM)
-**Kelas**         : (isi kelas)
+**NIM**           : 258320707
+**Kelas**         : 1B
 **Dosen**         : Muhaemin Sidiq, S.Pd., M.Pd.
 **Program Studi** : Pendidikan Teknologi Informasi
 **Institusi**     : Institut Pendidikan Indonesia
