@@ -1,0 +1,30 @@
+There are 10 section headers, starting at offset 0x6260:
+
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+  [ 1] .multiboot2       PROGBITS         ffffffff80000000  00001000
+       0000000000000018  0000000000000000   A       0     0     8
+  [ 2] .text             PROGBITS         ffffffff80001000  00002000
+       000000000000138c  0000000000000000  AX       0     0     4096
+  [ 3] .rodata           PROGBITS         ffffffff80003000  00004000
+       00000000000008c8  0000000000000000 AMS       0     0     4096
+  [ 4] .data             PROGBITS         ffffffff80004000  00005000
+       0000000000000100  0000000000000000  WA       0     0     4096
+  [ 5] .bss              NOBITS           ffffffff80005000  00005100
+       0000000000015030  0000000000000000  WA       0     0     4096
+  [ 6] .comment          PROGBITS         0000000000000000  00005100
+       0000000000000042  0000000000000001  MS       0     0     1
+  [ 7] .symtab           SYMTAB           0000000000000000  00005148
+       0000000000000b40  0000000000000018           9    36     8
+  [ 8] .shstrtab         STRTAB           0000000000000000  00005c88
+       0000000000000049  0000000000000000           0     0     1
+  [ 9] .strtab           STRTAB           0000000000000000  00005cd1
+       0000000000000589  0000000000000000           0     0     1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), l (large), p (processor specific)
