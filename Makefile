@@ -216,3 +216,40 @@ m8-audit: m8-kmem-freestanding
 
 m8-all: m8-kmem-host-test m8-audit
 	@echo "[PASS] M8 selesai"
+
+CC := clang
+LD := ld.lld
+OBJDUMP ?= objdump
+READELF ?= readelf
+NM ?= nm
+SHA256SUM ?= sha256sum
+
+BUILD := build/m9
+CFLAGS_HOST := -std=c17 -Wall -Wextra -Werror -DMCSOS_HOST_TEST -Iinclude
+CFLAGS_KERNEL := -target x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-stack-protector -fno-pic -mno-red-zone -Wall -Wextra -Werror -Iinclude
+ASFLAGS_KERNEL := -target x86_64-unknown-none-elf -ffreestanding -fno-stack-protector -fno-pic -mno-red-zone
+
+.PHONY: m9-all m9-host-test m9-freestanding m9-audit m9-clean
+
+m9-all: m9-host-test m9-freestanding m9-audit
+
+$(BUILD):
+	mkdir -p $(BUILD)
+
+m9-host-test: $(BUILD)
+	$(CC) $(CFLAGS_HOST) tests/test_scheduler_host.c kernel/mcsos_thread.c -o $(BUILD)/m9_host_test
+	$(BUILD)/m9_host_test | tee $(BUILD)/test_scheduler.log
+
+m9-freestanding: $(BUILD)
+	$(CC) $(CFLAGS_KERNEL) -c kernel/mcsos_thread.c -o $(BUILD)/mcsos_thread.freestanding.o
+	$(CC) $(ASFLAGS_KERNEL) -c kernel/arch/x86_64/context_switch.S $(BUILD)/context_switch.o
+	$(LD) -r $(BUILD)/mcsos_thread.freestanding.o $(BUILD)/context_switch.o -o $(BUILD)/m9_scheduler_combined.o
+
+m9-audit: m9-freestanding
+	$(NM) -u $(BUILD)/m9_scheduler_combined.o | tee $(BUILD)/nm_undefined.log
+	$(READELF) -h $(BUILD)/m9_scheduler_combined.o | tee $(BUILD)/readelf_header.log
+	$(OBJDUMP) -d $(BUILD)/m9_scheduler_combined.o | grep -E 'mcsos_context_switch|jmp|ret|hlt' | tee $(BUILD)/objdump_key.log
+	$(SHA256SUM) $(BUILD)/m9_host_test $(BUILD)/m9_scheduler_combined.o | tee $(BUILD)/sha256.log
+
+m9-clean:
+	rm -rf $(BUILD)
