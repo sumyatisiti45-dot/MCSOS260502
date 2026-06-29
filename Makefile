@@ -316,3 +316,53 @@ m11-audit: m11-freestanding
 	$(READELF) -h $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/readelf_header.log
 	$(OBJDUMP) -d $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/objdump.log
 	$(SHA256SUM) $(BUILD_M11)/m11_host_test $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/sha256.log
+BUILD_M12 := build/m12
+
+.PHONY: m12-all m12-host-test m12-freestanding m12-audit
+
+m12-all: m12-host-test m12-freestanding m12-audit
+
+$(BUILD_M12):
+	mkdir -p $(BUILD_M12)
+
+m12-host-test: $(BUILD_M12)
+	$(CC) -std=c17 -Wall -Wextra -Werror -DMCSOS_HOST_TEST -Iinclude \
+	tests/m12_sync_host_test.c \
+	kernel/sync/lockdep.c \
+	kernel/sync/spinlock.c \
+	kernel/sync/mutex.c \
+	-o $(BUILD_M12)/m12_host_test
+	$(BUILD_M12)/m12_host_test | tee $(BUILD_M12)/test_m12.log
+
+m12-freestanding: $(BUILD_M12)
+	$(CC) -target x86_64-unknown-none-elf -std=c17 -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-Wall -Wextra -Werror -Iinclude \
+	-c kernel/sync/lockdep.c \
+	-o $(BUILD_M12)/lockdep.o
+
+	$(CC) -target x86_64-unknown-none-elf -std=c17 -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-Wall -Wextra -Werror -Iinclude \
+	-c kernel/sync/spinlock.c \
+	-o $(BUILD_M12)/spinlock.o
+
+	$(CC) -target x86_64-unknown-none-elf -std=c17 -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-Wall -Wextra -Werror -Iinclude \
+	-c kernel/sync/mutex.c \
+	-o $(BUILD_M12)/mutex.o
+
+	$(LD) -r \
+	$(BUILD_M12)/lockdep.o \
+	$(BUILD_M12)/spinlock.o \
+	$(BUILD_M12)/mutex.o \
+	-o $(BUILD_M12)/m12_sync_combined.o
+
+m12-audit: m12-freestanding
+	$(NM) -u $(BUILD_M12)/m12_sync_combined.o | tee $(BUILD_M12)/nm_undefined.log
+	$(READELF) -h $(BUILD_M12)/m12_sync_combined.o | tee $(BUILD_M12)/readelf_header.log
+	$(OBJDUMP) -d $(BUILD_M12)/m12_sync_combined.o | tee $(BUILD_M12)/objdump.log
+	$(SHA256SUM) \
+	$(BUILD_M12)/m12_host_test \
+	$(BUILD_M12)/m12_sync_combined.o | tee $(BUILD_M12)/sha256.log
