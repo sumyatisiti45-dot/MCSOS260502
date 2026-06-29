@@ -186,3 +186,33 @@ distclean: clean
 	rm -rf iso_root limine evidence
 
 grade: clean audit
+# ==========================
+# M8 Kernel Heap
+# ==========================
+
+m8-kmem-host-test:
+	mkdir -p build/m8
+	clang -std=c17 -Wall -Wextra -Werror \
+		-DMCSOS_HOST_TEST \
+		-Iinclude \
+		tests/test_kmem.c \
+		kernel/mm/kmem.c \
+		-o build/m8/test_kmem
+	./build/m8/test_kmem
+
+m8-kmem-freestanding:
+	mkdir -p build/m8
+	clang -std=c17 -Wall -Wextra -Werror \
+		-ffreestanding -fno-builtin \
+		-Iinclude \
+		-c kernel/mm/kmem.c \
+		-o build/m8/kmem.o
+
+m8-audit: m8-kmem-freestanding
+	readelf -h build/m8/kmem.o > build/m8/readelf_h.txt
+	readelf -S build/m8/kmem.o > build/m8/readelf_s.txt
+	nm -u build/m8/kmem.o > build/m8/nm_u.txt
+	objdump -dr build/m8/kmem.o > build/m8/kmem.objdump.txt
+
+m8-all: m8-kmem-host-test m8-audit
+	@echo "[PASS] M8 selesai"
