@@ -287,3 +287,32 @@ m10-audit: m10-freestanding
 	$(READELF) -h $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/readelf_header.log
 	$(OBJDUMP) -d $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/objdump.log
 	$(SHA256SUM) $(BUILD_M10)/m10_host_test $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/sha256.log
+
+BUILD_M11 := build/m11
+
+.PHONY: m11-all m11-host-test m11-freestanding m11-audit
+
+m11-all: m11-host-test m11-freestanding m11-audit
+
+$(BUILD_M11):
+	mkdir -p $(BUILD_M11)
+
+m11-host-test: $(BUILD_M11)
+	$(CC) -std=c17 -Wall -Wextra -Werror -DMCSOS_HOST_TEST -Iinclude \
+	tests/m11/m11_host_test.c \
+	kernel/user/m11_elf_loader.c \
+	-o $(BUILD_M11)/m11_host_test
+	$(BUILD_M11)/m11_host_test | tee $(BUILD_M11)/test_m11.log
+
+m11-freestanding: $(BUILD_M11)
+	$(CC) -target x86_64-unknown-none-elf -std=c17 -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-Wall -Wextra -Werror -Iinclude \
+	-c kernel/user/m11_elf_loader.c \
+	-o $(BUILD_M11)/m11_elf_loader.o
+
+m11-audit: m11-freestanding
+	$(NM) -u $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/nm_undefined.log
+	$(READELF) -h $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/readelf_header.log
+	$(OBJDUMP) -d $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/objdump.log
+	$(SHA256SUM) $(BUILD_M11)/m11_host_test $(BUILD_M11)/m11_elf_loader.o | tee $(BUILD_M11)/sha256.log
