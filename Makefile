@@ -253,3 +253,37 @@ m9-audit: m9-freestanding
 
 m9-clean:
 	rm -rf $(BUILD)
+BUILD_M10 := build/m10
+
+.PHONY: m10-all m10-host-test m10-freestanding m10-audit
+
+m10-all: m10-host-test m10-freestanding m10-audit
+
+$(BUILD_M10):
+	mkdir -p $(BUILD_M10)
+
+m10-host-test: $(BUILD_M10)
+	$(CC) -std=c17 -Wall -Wextra -Werror -DMCSOS_HOST_TEST -Iinclude \
+	tests/test_syscall_host.c \
+	kernel/syscall/syscall.c \
+	-o $(BUILD_M10)/m10_host_test
+	$(BUILD_M10)/m10_host_test | tee $(BUILD_M10)/test_syscall.log
+
+m10-freestanding: $(BUILD_M10)
+	$(CC) -target x86_64-unknown-none-elf -std=c17 -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-Wall -Wextra -Werror -Iinclude \
+	-c kernel/syscall/syscall.c \
+	-o $(BUILD_M10)/syscall.o
+	$(CC) -target x86_64-unknown-none-elf -ffreestanding \
+	-fno-stack-protector -fno-pic -mno-red-zone \
+	-c kernel/syscall/syscall_entry.S \
+	-o $(BUILD_M10)/syscall_entry.o
+	$(LD) -r $(BUILD_M10)/syscall.o $(BUILD_M10)/syscall_entry.o \
+	-o $(BUILD_M10)/m10_syscall_combined.o
+
+m10-audit: m10-freestanding
+	$(NM) -u $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/nm_undefined.log
+	$(READELF) -h $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/readelf_header.log
+	$(OBJDUMP) -d $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/objdump.log
+	$(SHA256SUM) $(BUILD_M10)/m10_host_test $(BUILD_M10)/m10_syscall_combined.o | tee $(BUILD_M10)/sha256.log
