@@ -416,3 +416,36 @@ m13-audit: m13-objects
 
 clean:
 	rm -rf $(BUILD)
+
+CC ?= cc
+CLANG ?= clang
+CFLAGS_HOST := -std=c17 -Wall -Wextra -Werror -Iinclude -O2
+CFLAGS_FREESTANDING := --target=x86_64-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -mno-red-zone -Wall -Wextra -Werror -Iinclude -O2 -c
+SRC := kernel/block/block.c kernel/block/ramblk.c kernel/block/bcache.c
+OBJ := build/block.o build/ramblk.o build/bcache.o
+
+.PHONY: m14-all m14-host-test m14-freestanding m14-audit
+m14-all: m14-host-test m14-freestanding m14-audit
+
+m14-host-test: build/test_m14_block
+	./build/test_m14_block
+
+build/test_m14_block: tests/host/test_m14_block.c $(SRC) include/mcsos/block.h
+	mkdir -p build
+	$(CC) $(CFLAGS_HOST) tests/host/test_m14_block.c $(SRC) -o $@
+
+m14-freestanding: $(OBJ)
+
+build/%.o: kernel/block/%.c include/mcsos/block.h
+	mkdir -p build
+	$(CLANG) $(CFLAGS_FREESTANDING) $< -o $@
+
+m14-audit: m14-freestanding
+	ld -r -o build/m14_block_layer.o $(OBJ)
+	nm -u build/m14_block_layer.o > artifacts/m14_nm_undefined.txt
+	readelf -h build/m14_block_layer.o > artifacts/m14_readelf_block.txt
+	objdump -dr build/m14_block_layer.o > artifacts/m14_objdump_block.txt
+	sha256sum $(OBJ) build/m14_block_layer.o build/test_m14_block > artifacts/m14_sha256.txt
+	test ! -s artifacts/m14_nm_undefined.txt
+
+
