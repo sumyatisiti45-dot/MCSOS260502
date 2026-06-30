@@ -44,7 +44,8 @@ COMMON_CFLAGS := \
 	-Wextra \
 	-Werror \
 	-Ikernel/arch/x86_64/include \
-	-Ikernel/include
+	-Ikernel/include \
+	-Iinclude
 
 COMMON_ASFLAGS := \
 	--target=x86_64-unknown-none-elf \
@@ -57,7 +58,8 @@ COMMON_ASFLAGS := \
 	-Wextra \
 	-Werror \
 	-Ikernel/arch/x86_64/include \
-	-Ikernel/include
+	-Ikernel/include \
+	-Iinclude
 
 CFLAGS       := $(COMMON_CFLAGS)
 ASFLAGS      := $(COMMON_ASFLAGS)
@@ -421,8 +423,8 @@ CC ?= cc
 CLANG ?= clang
 CFLAGS_HOST := -std=c17 -Wall -Wextra -Werror -Iinclude -O2
 CFLAGS_FREESTANDING := --target=x86_64-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -mno-red-zone -Wall -Wextra -Werror -Iinclude -O2 -c
-SRC := kernel/block/block.c kernel/block/ramblk.c kernel/block/bcache.c
-OBJ := build/block.o build/ramblk.o build/bcache.o
+M14_SRC := kernel/block/block.c kernel/block/ramblk.c kernel/block/bcache.c
+M14_OBJ := build/block.o build/ramblk.o build/bcache.o
 
 .PHONY: m14-all m14-host-test m14-freestanding m14-audit
 m14-all: m14-host-test m14-freestanding m14-audit
@@ -430,11 +432,11 @@ m14-all: m14-host-test m14-freestanding m14-audit
 m14-host-test: build/test_m14_block
 	./build/test_m14_block
 
-build/test_m14_block: tests/host/test_m14_block.c $(SRC) include/mcsos/block.h
+build/test_m14_block: tests/host/test_m14_block.c $(M14_SRC) include/mcsos/block.h
 	mkdir -p build
-	$(CC) $(CFLAGS_HOST) tests/host/test_m14_block.c $(SRC) -o $@
+	$(CC) $(CFLAGS_HOST) tests/host/test_m14_block.c $(M14_SRC) -o $@
 
-m14-freestanding: $(OBJ)
+m14-freestanding: $(M14_OBJ)
 
 build/%.o: kernel/block/%.c include/mcsos/block.h
 	mkdir -p build
